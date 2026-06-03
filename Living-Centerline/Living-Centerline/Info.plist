@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SFPRODISPLAYBLACKITALIC</string>
+		<string>SFPRODISPLAYBOLD</string>
+		<string>SFPRODISPLAYHEAVYITALIC</string>
+		<string>SFPRODISPLAYLIGHTITALIC</string>
+		<string>SFPRODISPLAYMEDIUM</string>
+		<string>SFPRODISPLAYREGULAR</string>
+		<string>SFPRODISPLAYSEMIBOLDITALIC</string>
+		<string>SFPRODISPLAYTHINITALIC</string>
+		<string>SFPRODISPLAYULTRALIGHTITALIC</string>
+	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</dict>
+</plist>
