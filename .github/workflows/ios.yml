@@ -8,37 +8,86 @@ on:
 
 jobs:
   build:
-    name: Build and Test default scheme using any available iPhone simulator
+    name: Build iOS app for simulator
     runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set Default Scheme
+
+      - name: Show Xcode version
         run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
+          xcodebuild -version
+
+      - name: List project schemes
+        working-directory: Living-Centerline
+        run: |
+          xcodebuild -list -project Living-Centerline.xcodeproj
+
+      - name: Resolve Swift packages
+        working-directory: Living-Centerline
+        run: |
+          xcodebuild \
+            -resolvePackageDependencies \
+            -project Living-Centerline.xcodeproj \
+            -scheme Living-Centerline
+
       - name: Build
-        env:
-          scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
+        working-directory: Living-Centerline
         run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
-      - name: Test
-        env:
-          scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
+          xcodebuild \
+            -project Living-Centerline.xcodeproj \
+            -scheme Living-Centerline \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Capture simulator screenshot
+        working-directory: Living-Centerline
         run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+          set -euo pipefail
+
+          mkdir -p screenshots
+
+          runtime=$(xcrun simctl list runtimes available -j | ruby -rjson -e '
+            runtimes = JSON.parse(STDIN.read)["runtimes"]
+            ios = runtimes.select { |r| r["platform"] == "iOS" && r["isAvailable"] }
+            puts ios.max_by { |r| Gem::Version.new(r["version"]) }["identifier"]
+          ')
+
+          device_type=$(xcrun simctl list devicetypes -j | ruby -rjson -e '
+            types = JSON.parse(STDIN.read)["devicetypes"]
+            preferred = types.find { |d| d["name"] == "iPhone 16" } ||
+              types.find { |d| d["name"] == "iPhone 15" } ||
+              types.find { |d| d["name"].start_with?("iPhone") }
+            puts preferred["identifier"]
+          ')
+
+          udid=$(xcrun simctl create LivingCenterlineScreenshot "$device_type" "$runtime")
+          trap 'xcrun simctl shutdown "$udid" || true; xcrun simctl delete "$udid" || true' EXIT
+
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+
+          app_path="build/Build/Products/Debug-iphonesimulator/Living-Centerline.app"
+          xcrun simctl install "$udid" "$app_path"
+
+          for screen in login home survey settings; do
+            xcrun simctl terminate "$udid" com.looseimpediment.CenterLine || true
+            xcrun simctl launch "$udid" com.looseimpediment.CenterLine \
+              -LCIEnvironment mock \
+              -LCIScreenshotScreen "$screen"
+            sleep 8
+            xcrun simctl io "$udid" screenshot "screenshots/${screen}.png"
+          done
+
+      - name: Upload simulator artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: living-centerline-simulator
+          path: |
+            Living-Centerline/screenshots/*.png
+            Living-Centerline/build/Build/Products/Debug-iphonesimulator/Living-Centerline.app

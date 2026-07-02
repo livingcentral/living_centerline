@@ -51,7 +51,8 @@ Living-Centerline/Living-Centerline/Helper/Constant/Constant.swift
 Important constants:
 
 - `API.base_url` - currently production Heroku mobile API.
-- `API.isTestingOn` - currently `false`.
+- `AppConfig.environment` - selects `production`, `staging`, `qa`, `mock`, or `dev` from launch arguments or the `LCI_ENVIRONMENT` environment variable.
+- `API.isTestingOn` - deprecated compatibility flag; it now maps to `AppConfig.usesFixtureData`.
 - A commented dev tunnel URL is present for local/mobile backend testing.
 
 The app expects the mobile backend to expose:
@@ -73,6 +74,45 @@ The app expects the mobile backend to expose:
 - `/health/retrieve-missing-dates`
 - `/user/track-app-logs`
 
+## Environment Modes
+
+The intended environment split is:
+
+- `production` - full release behavior against the production mobile API and production data.
+- `staging` - production-like behavior against isolated staging services and staging data.
+- `qa` - real network/data flow against renewable QA data for human and agent testing.
+- `mock` - local fixture mode for simulator screenshots and deterministic UI review; no external TCP/API calls should be required.
+- `dev` - local developer mode for local APIs or selectively enabled integrations.
+
+The first implemented runtime mode is `mock`. Pass it as a launch argument:
+
+```bash
+-LCIEnvironment mock
+```
+
+Screenshot builds can also select a startup screen:
+
+```bash
+-LCIScreenshotScreen login
+-LCIScreenshotScreen home
+-LCIScreenshotScreen survey
+-LCIScreenshotScreen settings
+```
+
+The mock fixture currently represents:
+
+```text
+Name: James T. Kirk
+Displayed name: James T. Kirk
+Email: james.kirk@example.test
+Token: mock-token-james-t-kirk
+Last survey submission: 2026-06-24T12:00:00.000+0000
+Question fixture count: 4
+Preselected answers: 2 of 4
+```
+
+In `mock`, the app seeds `UserDefaults`, returns local profile/question data, treats health data as available, and accepts survey/profile/logout/delete/log calls without using the network. This mode is for screenshots and UI inspection only; it is not an end-to-end backend test.
+
 ## Dependencies
 
 Swift Package Manager dependencies are pinned in `Package.resolved`:
@@ -92,6 +132,17 @@ The project also uses Apple frameworks including UIKit, UserNotifications, Healt
    - Team currently configured in the project: `ZXVDFU2WXR`
    - Deployment target: iOS 15.0
 5. Build and run.
+
+## GitHub Simulator Screenshots
+
+The GitHub Actions workflow builds the simulator app, boots a temporary iPhone simulator, launches the app in `mock` mode, and uploads screenshots as the `living-centerline-simulator` artifact.
+
+Current screenshots:
+
+- `login.png`
+- `home.png`
+- `survey.png`
+- `settings.png`
 
 ## HealthKit And Entitlements
 

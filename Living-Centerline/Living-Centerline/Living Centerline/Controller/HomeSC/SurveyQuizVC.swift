@@ -163,6 +163,13 @@ class SurveyQuizVC: UIViewController, SendQuestionValueDelegate {
     
     // MARK: - Health data retrieval
     private func requestHealthKitAuthorization() {
+        if AppConfig.usesFixtureData {
+            isDataAvailable = true
+            isHealthDataUploaded = true
+            sendSurveyData()
+            return
+        }
+
         ProgressHUD.animate()
         dispatchGroup.enter()
         healthKitManager.requestHealthKitAuthorization { [weak self] result in
