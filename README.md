@@ -51,8 +51,7 @@ Living-Centerline/Living-Centerline/Helper/Constant/Constant.swift
 Important constants:
 
 - `API.base_url` - currently production Heroku mobile API.
-- `API.isTestingOn` - currently `false`.
-- A commented dev tunnel URL is present for local/mobile backend testing.
+- `API.isTestingOn` - `true` only when the app is compiled with `SCREENSHOT_FIXTURES`; otherwise `false`.
 
 The app expects the mobile backend to expose:
 
@@ -73,6 +72,37 @@ The app expects the mobile backend to expose:
 - `/health/retrieve-missing-dates`
 - `/user/track-app-logs`
 
+## Build Configurations
+
+The app currently has three Xcode build configurations:
+
+- `Release` - production-only behavior. It does not compile screenshot fixtures, fixture data, internal environment selectors, or screenshot routing.
+- `Debug` - developer build behavior against the configured production mobile API. It does not compile screenshot fixtures.
+- `Screenshot` - simulator screenshot build. It defines `SCREENSHOT_FIXTURES`, compiles local fixture data, bypasses network/HealthKit where needed, and supports deterministic startup screens.
+
+In `Screenshot` builds, select a startup screen with:
+
+```bash
+-LCIScreenshotScreen login
+-LCIScreenshotScreen home
+-LCIScreenshotScreen survey
+-LCIScreenshotScreen settings
+```
+
+The screenshot fixture currently represents:
+
+```text
+Name: James T. Kirk
+Displayed name: James T. Kirk
+Email: james.kirk@example.test
+Token: mock-token-james-t-kirk
+Last survey submission: 2026-06-24T12:00:00.000+0000
+Question fixture count: 4
+Preselected answers: 2 of 4
+```
+
+In `Screenshot`, the app seeds `UserDefaults`, returns local profile/question data, treats health data as available, and accepts survey/profile/logout/delete/log calls without using the network. This code is excluded from normal `Debug` and `Release` builds.
+
 ## Dependencies
 
 Swift Package Manager dependencies are pinned in `Package.resolved`:
@@ -92,6 +122,38 @@ The project also uses Apple frameworks including UIKit, UserNotifications, Healt
    - Team currently configured in the project: `ZXVDFU2WXR`
    - Deployment target: iOS 15.0
 5. Build and run.
+
+## GitHub Simulator Screenshots
+
+The GitHub Actions workflow builds the simulator app with the `Screenshot` configuration, boots a temporary iPhone simulator, launches each fixture screen, and uploads screenshots as the `living-centerline-simulator` artifact.
+
+Current screenshots:
+
+- `login.png`
+- `home.png`
+- `survey.png`
+- `settings.png`
+
+## Appetize Upload
+
+The iOS workflow can also upload the simulator `.app` build to Appetize on pushes to `main` or manual `workflow_dispatch` runs. Pull requests do not upload to Appetize.
+
+Configure these GitHub Actions repository secrets under:
+
+```text
+Settings -> Secrets and variables -> Actions -> Repository secrets
+```
+
+- `APPETIZE_API_KEY` - required. Appetize REST API token.
+- `APPETIZE_PUBLIC_KEY` - optional for the first run. After the first successful upload, copy the `publicKey` printed in the Actions log into this secret so later runs update the same Appetize app.
+
+The uploaded simulator app uses the existing iOS bundle and version metadata:
+
+```text
+Bundle identifier: com.looseimpediment.CenterLine
+Version: 1.0
+Build: 29
+```
 
 ## HealthKit And Entitlements
 

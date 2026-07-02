@@ -78,6 +78,14 @@ class NextSurveyVC: UIViewController {
     }
     // MARK: - request authorization
     private func requestHealthKitAuthorization() {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
+            isDataAvailable = true
+            validatingHealthData()
+            return
+        }
+#endif
+
         ProgressHUD.animate()
         dispatchGroup.enter()
         healthKitManager.requestHealthKitAuthorization { [weak self] result in

@@ -7,6 +7,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
+            MockData.seedUserDefaults()
+            navigateToScreenshotScreen(windowScene: windowScene)
+            return
+        }
+#endif
+
         // Check for either userToken or userLoginToken
         if let userToken = UserDefaults.standard.value(forKey: "userToken") as? String {
             print("UserToken: \(userToken)")
@@ -36,6 +44,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = navVC
         window?.makeKeyAndVisible()
     }
+
+#if SCREENSHOT_FIXTURES
+    private func navigateToScreenshotScreen(windowScene: UIWindowScene) {
+        let rootViewController: UIViewController
+
+        switch AppConfig.screenshotScreen {
+        case .home:
+            rootViewController = UIStoryboard(name: "HomeSC", bundle: Bundle.main)
+                .instantiateViewController(withIdentifier: "HomeScreenVC")
+        case .survey:
+            rootViewController = UIStoryboard(name: "HomeSC", bundle: Bundle.main)
+                .instantiateViewController(withIdentifier: "QuizVC")
+        case .settings:
+            let settings = UIStoryboard(name: "HomeSC", bundle: Bundle.main)
+                .instantiateViewController(withIdentifier: "SettingVC") as! SettingVC
+            settings.firstName = MockData.profile.data.firstName
+            settings.lastName = MockData.profile.data.lastName
+            settings.email = MockData.profile.data.email
+            settings.isProfileDataAvailable = true
+            rootViewController = settings
+        case .login:
+            rootViewController = UIStoryboard(name: "Main", bundle: Bundle.main)
+                .instantiateViewController(withIdentifier: "LoginPageVC")
+        }
+
+        let navVC = UINavigationController(rootViewController: rootViewController)
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController = navVC
+        window?.makeKeyAndVisible()
+    }
+#endif
     /*
      i want to log data for whatever happening in my app so i need structure
      */

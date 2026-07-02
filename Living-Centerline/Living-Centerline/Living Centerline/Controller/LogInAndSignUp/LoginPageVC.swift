@@ -245,10 +245,12 @@ extension LoginPageVC {
 extension LoginPageVC {
     
     private func developmentData() {
+#if SCREENSHOT_FIXTURES
         //emailTextField.text = "hemant.mobileappdev@gmail.com"
-        emailTextField.text = "test13@test.com"
-        passwordTextField.text = "test1234"
+        emailTextField.text = MockData.profile.data.email
+        passwordTextField.text = "mock-password"
         //loginButton.sendActions(for: .touchUpInside)
+#endif
     }
     
     private func productionData() {

@@ -288,6 +288,18 @@ class HomeScreenVC: UIViewController, SendIsSurveyDoneValueDelegate, HealthSyncD
     }
     // MARK: - request authorisation method
     private func requestHealthKitAuthorization() {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
+            isHealthDataAvailable = true
+            updateUI(
+                isInteraction: false,
+                buttonImageName: "app.icn.right",
+                authorisationText: "Mock health data loaded"
+            )
+            return
+        }
+#endif
+
         LogManager.shared.addLog(data: "#Home fetching health data for permission check")
         
         ProgressHUD.animate("Fetching Health data")
