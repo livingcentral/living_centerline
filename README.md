@@ -134,6 +134,27 @@ Current screenshots:
 - `survey.png`
 - `settings.png`
 
+## Appetize Upload
+
+The iOS workflow can also upload the simulator `.app` build to Appetize on pushes to `main` or manual `workflow_dispatch` runs. Pull requests do not upload to Appetize.
+
+Configure these GitHub Actions repository secrets under:
+
+```text
+Settings -> Secrets and variables -> Actions -> Repository secrets
+```
+
+- `APPETIZE_API_KEY` - required. Appetize REST API token.
+- `APPETIZE_PUBLIC_KEY` - optional for the first run. After the first successful upload, copy the `publicKey` printed in the Actions log into this secret so later runs update the same Appetize app.
+
+The uploaded simulator app uses the existing iOS bundle and version metadata:
+
+```text
+Bundle identifier: com.looseimpediment.CenterLine
+Version: 1.0
+Build: 29
+```
+
 ## HealthKit And Entitlements
 
 HealthKit is enabled in:

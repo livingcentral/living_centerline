@@ -5,11 +5,15 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
     name: Build iOS app for simulator
     runs-on: macos-latest
+    env:
+      APPETIZE_API_KEY: ${{ secrets.APPETIZE_API_KEY }}
+      APPETIZE_PUBLIC_KEY: ${{ secrets.APPETIZE_PUBLIC_KEY }}
 
     steps:
       - name: Checkout
@@ -90,3 +94,47 @@ jobs:
           path: |
             Living-Centerline/screenshots/*.png
             Living-Centerline/build/Build/Products/Screenshot-iphonesimulator/Living-Centerline.app
+
+      - name: Upload simulator app to Appetize
+        if: ${{ env.APPETIZE_API_KEY != '' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch') }}
+        working-directory: Living-Centerline
+        run: |
+          set -euo pipefail
+
+          app_path="build/Build/Products/Screenshot-iphonesimulator/Living-Centerline.app"
+          zip_path="build/Build/Products/Screenshot-iphonesimulator/Living-Centerline-appetize.zip"
+          response_path="build/Build/Products/Screenshot-iphonesimulator/appetize-response.json"
+
+          if [[ ! -d "$app_path" ]]; then
+            echo "Expected simulator app not found at $app_path" >&2
+            exit 1
+          fi
+
+          rm -f "$zip_path" "$response_path"
+          ditto -c -k --sequesterRsrc --keepParent "$app_path" "$zip_path"
+
+          endpoint="https://api.appetize.io/v1/apps"
+          if [[ -n "${APPETIZE_PUBLIC_KEY:-}" ]]; then
+            endpoint="${endpoint}/${APPETIZE_PUBLIC_KEY}"
+          fi
+
+          http_status=$(curl -sS -o "$response_path" -w "%{http_code}" \
+            -X POST "$endpoint" \
+            -H "X-API-KEY: ${APPETIZE_API_KEY}" \
+            -F "file=@${zip_path}" \
+            -F "platform=ios")
+
+          cat "$response_path"
+          echo
+
+          if [[ "$http_status" -lt 200 || "$http_status" -ge 300 ]]; then
+            echo "Appetize upload failed with HTTP status $http_status" >&2
+            exit 1
+          fi
+
+          public_key=$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0]))["publicKey"].to_s' "$response_path")
+          version_code=$(ruby -rjson -e 'puts JSON.parse(File.read(ARGV[0]))["versionCode"].to_s' "$response_path")
+
+          echo "Appetize publicKey: $public_key"
+          echo "Appetize versionCode: $version_code"
+          echo "If this is the first successful upload, add APPETIZE_PUBLIC_KEY=$public_key as a GitHub Actions repository secret."
