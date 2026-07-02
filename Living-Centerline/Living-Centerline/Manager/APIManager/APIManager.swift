@@ -10,10 +10,12 @@ class APIManager {
     static let shareInstance = APIManager()
     // MARK: Register API Calling
     func callingRegisterApi(fName: String, lName: String, email: String, password: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(["success": true, "message": "Mock registration accepted", "token": MockData.token]))
             return
         }
+#endif
 
         
         let url = API.register_url
@@ -80,11 +82,13 @@ class APIManager {
     }
     // MARK: Login API Calling
     func callingLogInApi(email: String, password: String, completion: @escaping (Result<GetProfileModel, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             MockData.seedUserDefaults()
             completion(.success(MockData.profile))
             return
         }
+#endif
 
         guard let url = URL(string: API.login_url) else {
             completion(.failure(NSError(domain: "", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
@@ -151,11 +155,13 @@ class APIManager {
 
     // MARK: - GetProfile Api Calling
     func callingGetProfileApi(completion: @escaping (Result<GetProfileModel, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             MockData.seedUserDefaults()
             completion(.success(MockData.profile))
             return
         }
+#endif
 
         // Fetch the user token from UserDefaults
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
@@ -378,10 +384,12 @@ class APIManager {
     }
     // MARK: Logout Api
     func callingLogoutApi(completion: @escaping (Result<Any, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(["success": true, "message": "Mock logout accepted"]))
             return
         }
+#endif
 
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
             print("User token not found.")
@@ -431,10 +439,12 @@ class APIManager {
     }
     // MARK: Delete User Account Api
     func callingDeleteAccountApi(completion: @escaping (Result<Any, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(["success": true, "message": "Mock delete accepted"]))
             return
         }
+#endif
 
         // Fetch the user token from UserDefaults
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
@@ -499,10 +509,12 @@ class APIManager {
     }
     // MARK: EditProfile Api Calling
     func callingEditProfileApi(first_name: String, last_name: String, completion: @escaping (Result<Any, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(["success": true, "message": "Mock profile update accepted"]))
             return
         }
+#endif
 
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
             print("User token not found.")
@@ -573,11 +585,13 @@ class APIManager {
     
     // MARK: GetQuestion API Calling...
     func callingGetQuestionApi(completion: @escaping (Result<GetQuestionModel, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             MockData.seedUserDefaults()
             completion(.success(MockData.questions))
             return
         }
+#endif
 
         // Fetch the user token from UserDefaults
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
@@ -629,10 +643,12 @@ class APIManager {
     
     // MARK: - submit answer API
     func callingSubmitAllAnsApi(questions: [[String: Any]], completion: @escaping (Result<Any, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(["success": true, "message": "Mock survey submission accepted"]))
             return
         }
+#endif
 
         // Validate the URL
         guard let url = URL(string: API.submitSurvey_url) else {
@@ -704,10 +720,12 @@ class APIManager {
     
     // MARK: - Submit health data
     func postHealthData(token: String, url: String, healthData: [HealthDateModel], completion: @escaping (Result<Bool, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(true))
             return
         }
+#endif
 
         // Validate the URL
         guard let url = URL(string: url) else {
@@ -769,10 +787,12 @@ class APIManager {
     
     // MARK: Get last Sync API Calling...
     func getLastSyncDate(completion: @escaping (Result<LastSyncModel, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.failure(NSError(domain: "MockData", code: 204, userInfo: [NSLocalizedDescriptionKey: "No mock last sync date configured."])))
             return
         }
+#endif
 
         // Fetch the user token from UserDefaults
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
@@ -824,10 +844,12 @@ class APIManager {
     
     // MARK: - retrieve missing health data
     func getMissingHealthData(completion: @escaping (Result <[DataClass], Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success([]))
             return
         }
+#endif
 
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
             print("User token not found.")
@@ -878,10 +900,12 @@ class APIManager {
     
     // MARK: - retrieve missing health dates
     func getMissingHealthDates(completion: @escaping (Result <MissingDates, Error>) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(.success(MissingDates(missingDates: [])))
             return
         }
+#endif
 
         guard let usersToken = UserDefaults.standard.string(forKey: "userToken") else {
             print("User token not found.")
@@ -932,10 +956,12 @@ class APIManager {
     
     // MARK: - Send log data
     func sendLogsToAPI(token: String, url: String, logs: [LogModel], completion: @escaping (Bool) -> Void) {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             completion(true)
             return
         }
+#endif
 
         guard let apiURL = URL(string: url) else {
             print("Invalid URL")

@@ -7,11 +7,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             MockData.seedUserDefaults()
             navigateToScreenshotScreen(windowScene: windowScene)
             return
         }
+#endif
 
         // Check for either userToken or userLoginToken
         if let userToken = UserDefaults.standard.value(forKey: "userToken") as? String {
@@ -43,6 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.makeKeyAndVisible()
     }
 
+#if SCREENSHOT_FIXTURES
     private func navigateToScreenshotScreen(windowScene: UIWindowScene) {
         let rootViewController: UIViewController
 
@@ -71,6 +74,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = navVC
         window?.makeKeyAndVisible()
     }
+#endif
     /*
      i want to log data for whatever happening in my app so i need structure
      */

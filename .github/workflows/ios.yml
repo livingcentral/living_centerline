@@ -38,7 +38,7 @@ jobs:
           xcodebuild \
             -project Living-Centerline.xcodeproj \
             -scheme Living-Centerline \
-            -configuration Debug \
+            -configuration Screenshot \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath build \
@@ -72,13 +72,12 @@ jobs:
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" -b
 
-          app_path="build/Build/Products/Debug-iphonesimulator/Living-Centerline.app"
+          app_path="build/Build/Products/Screenshot-iphonesimulator/Living-Centerline.app"
           xcrun simctl install "$udid" "$app_path"
 
           for screen in login home survey settings; do
             xcrun simctl terminate "$udid" com.looseimpediment.CenterLine || true
             xcrun simctl launch "$udid" com.looseimpediment.CenterLine \
-              -LCIEnvironment mock \
               -LCIScreenshotScreen "$screen"
             sleep 8
             xcrun simctl io "$udid" screenshot "screenshots/${screen}.png"
@@ -90,4 +89,4 @@ jobs:
           name: living-centerline-simulator
           path: |
             Living-Centerline/screenshots/*.png
-            Living-Centerline/build/Build/Products/Debug-iphonesimulator/Living-Centerline.app
+            Living-Centerline/build/Build/Products/Screenshot-iphonesimulator/Living-Centerline.app

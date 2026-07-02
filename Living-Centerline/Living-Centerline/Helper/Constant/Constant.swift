@@ -7,14 +7,7 @@
 // change file
 import Foundation
 
-enum AppEnvironment: String {
-    case production
-    case staging
-    case qa
-    case mock
-    case dev
-}
-
+#if SCREENSHOT_FIXTURES
 enum ScreenshotScreen: String {
     case home
     case survey
@@ -23,34 +16,12 @@ enum ScreenshotScreen: String {
 }
 
 struct AppConfig {
-    static var environment: AppEnvironment {
-        if let environmentName = launchArgumentValue(for: "-LCIEnvironment"),
-           let environment = AppEnvironment(rawValue: environmentName.lowercased()) {
-            return environment
-        }
-
-        if let environmentName = ProcessInfo.processInfo.environment["LCI_ENVIRONMENT"],
-           let environment = AppEnvironment(rawValue: environmentName.lowercased()) {
-            return environment
-        }
-
-        return .production
-    }
-
     static var screenshotScreen: ScreenshotScreen {
         guard let screenName = launchArgumentValue(for: "-LCIScreenshotScreen"),
               let screen = ScreenshotScreen(rawValue: screenName.lowercased()) else {
             return .home
         }
         return screen
-    }
-
-    static var usesFixtureData: Bool {
-        environment == .mock
-    }
-
-    static var allowsNetwork: Bool {
-        environment != .mock
     }
 
     private static func launchArgumentValue(for key: String) -> String? {
@@ -137,10 +108,10 @@ struct MockData {
         }
     }
 }
+#endif
 
 struct API {
  static let base_url = "https://lcimobile-b264dc803a4b.herokuapp.com/api/v1" // production
-//    static let base_url = "https://sbrlzs11-3000.inc1.devtunnels.ms/api/v1"
     static let register_url = "\(base_url)/user/signup"
     static let login_url = "\(base_url)/user/login"
     static let getProfile_url = "\(base_url)/user/get-profile"
@@ -158,6 +129,9 @@ struct API {
     static let fetchMissingData = "\(base_url)/health/retrieve-missing-health-access-data"
     static let fetchMissingDates = "\(base_url)/health/retrieve-missing-dates"
     static let sendLog = "\(base_url)/user/track-app-logs"
-    // Deprecated: prefer AppConfig.environment and launch arguments.
-    static let isTestingOn = AppConfig.usesFixtureData
+#if SCREENSHOT_FIXTURES
+    static let isTestingOn = true
+#else
+    static let isTestingOn = false
+#endif
 }

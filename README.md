@@ -51,9 +51,7 @@ Living-Centerline/Living-Centerline/Helper/Constant/Constant.swift
 Important constants:
 
 - `API.base_url` - currently production Heroku mobile API.
-- `AppConfig.environment` - selects `production`, `staging`, `qa`, `mock`, or `dev` from launch arguments or the `LCI_ENVIRONMENT` environment variable.
-- `API.isTestingOn` - deprecated compatibility flag; it now maps to `AppConfig.usesFixtureData`.
-- A commented dev tunnel URL is present for local/mobile backend testing.
+- `API.isTestingOn` - `true` only when the app is compiled with `SCREENSHOT_FIXTURES`; otherwise `false`.
 
 The app expects the mobile backend to expose:
 
@@ -74,23 +72,15 @@ The app expects the mobile backend to expose:
 - `/health/retrieve-missing-dates`
 - `/user/track-app-logs`
 
-## Environment Modes
+## Build Configurations
 
-The intended environment split is:
+The app currently has three Xcode build configurations:
 
-- `production` - full release behavior against the production mobile API and production data.
-- `staging` - production-like behavior against isolated staging services and staging data.
-- `qa` - real network/data flow against renewable QA data for human and agent testing.
-- `mock` - local fixture mode for simulator screenshots and deterministic UI review; no external TCP/API calls should be required.
-- `dev` - local developer mode for local APIs or selectively enabled integrations.
+- `Release` - production-only behavior. It does not compile screenshot fixtures, fixture data, internal environment selectors, or screenshot routing.
+- `Debug` - developer build behavior against the configured production mobile API. It does not compile screenshot fixtures.
+- `Screenshot` - simulator screenshot build. It defines `SCREENSHOT_FIXTURES`, compiles local fixture data, bypasses network/HealthKit where needed, and supports deterministic startup screens.
 
-The first implemented runtime mode is `mock`. Pass it as a launch argument:
-
-```bash
--LCIEnvironment mock
-```
-
-Screenshot builds can also select a startup screen:
+In `Screenshot` builds, select a startup screen with:
 
 ```bash
 -LCIScreenshotScreen login
@@ -99,7 +89,7 @@ Screenshot builds can also select a startup screen:
 -LCIScreenshotScreen settings
 ```
 
-The mock fixture currently represents:
+The screenshot fixture currently represents:
 
 ```text
 Name: James T. Kirk
@@ -111,7 +101,7 @@ Question fixture count: 4
 Preselected answers: 2 of 4
 ```
 
-In `mock`, the app seeds `UserDefaults`, returns local profile/question data, treats health data as available, and accepts survey/profile/logout/delete/log calls without using the network. This mode is for screenshots and UI inspection only; it is not an end-to-end backend test.
+In `Screenshot`, the app seeds `UserDefaults`, returns local profile/question data, treats health data as available, and accepts survey/profile/logout/delete/log calls without using the network. This code is excluded from normal `Debug` and `Release` builds.
 
 ## Dependencies
 
@@ -135,7 +125,7 @@ The project also uses Apple frameworks including UIKit, UserNotifications, Healt
 
 ## GitHub Simulator Screenshots
 
-The GitHub Actions workflow builds the simulator app, boots a temporary iPhone simulator, launches the app in `mock` mode, and uploads screenshots as the `living-centerline-simulator` artifact.
+The GitHub Actions workflow builds the simulator app with the `Screenshot` configuration, boots a temporary iPhone simulator, launches each fixture screen, and uploads screenshots as the `living-centerline-simulator` artifact.
 
 Current screenshots:
 

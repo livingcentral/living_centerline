@@ -288,7 +288,8 @@ class HomeScreenVC: UIViewController, SendIsSurveyDoneValueDelegate, HealthSyncD
     }
     // MARK: - request authorisation method
     private func requestHealthKitAuthorization() {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             isHealthDataAvailable = true
             updateUI(
                 isInteraction: false,
@@ -297,6 +298,7 @@ class HomeScreenVC: UIViewController, SendIsSurveyDoneValueDelegate, HealthSyncD
             )
             return
         }
+#endif
 
         LogManager.shared.addLog(data: "#Home fetching health data for permission check")
         

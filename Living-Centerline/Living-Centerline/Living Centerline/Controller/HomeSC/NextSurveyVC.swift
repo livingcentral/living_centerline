@@ -78,11 +78,13 @@ class NextSurveyVC: UIViewController {
     }
     // MARK: - request authorization
     private func requestHealthKitAuthorization() {
-        if AppConfig.usesFixtureData {
+#if SCREENSHOT_FIXTURES
+        if API.isTestingOn {
             isDataAvailable = true
             validatingHealthData()
             return
         }
+#endif
 
         ProgressHUD.animate()
         dispatchGroup.enter()

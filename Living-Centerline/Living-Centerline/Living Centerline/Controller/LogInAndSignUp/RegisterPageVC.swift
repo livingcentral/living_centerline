@@ -260,11 +260,13 @@ class RegisterPageVC: UIViewController {
 extension RegisterPageVC {
     
     private func developmentData() {
+#if SCREENSHOT_FIXTURES
         firstNameTextField.text = "James"
         lastNameTextField.text = "Kirk"
         emailIdTextField.text = MockData.profile.data.email
         passwordTextField.text = "mock-password"
         confirmPasswordTextField.text = "mock-password"
+#endif
     }
     
     private func productionData() {
